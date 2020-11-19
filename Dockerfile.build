@@ -1,0 +1,19 @@
+FROM lambci/yumda:2
+
+WORKDIR /tmp
+ENV LD_LIBRARY_PATH=/lambda/opt/lib:/opt/lib/
+ENV PATH=/root/bin:/bin:/opt/bin:/usr/opt/bin:/usr/bin:/lambda/opt/bin
+RUN yum install -y gcc && yum install -y make
+RUN mkdir -p /opt/lib
+RUN ln -s /lambda/opt/lib/libc_nonshared.a /opt/lib/libc_nonshared.a
+RUN ln -s /lambda/opt/bin/ld.gold /bin/ld
+RUN mkdir /usr/share/antiword
+
+COPY antiword-0.37.tar.gz /tmp
+RUN tar -xf antiword-0.37.tar.gz && cd antiword-0.37 && make install
+
+# Only for demo purposes, this can be removed
+COPY example/file-sample_100kB.doc /tmp
+
+# Default command just to show that this actually works...should see some raw lorem ipsum text...again for demo purposes only
+CMD ["antiword", "file-sample_100kB.doc"]
